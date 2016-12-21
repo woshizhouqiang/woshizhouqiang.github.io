@@ -8,8 +8,8 @@ title: 关于我
 <p>
 
 所在公司
-<a target="_blank" href="https://www.kingee.com"> 金蝶 </a>
-负责<a target="_blank" href="http://club.kingdee.com"> 金蝶社区 </a>java相关的
+<a target="_blank" href="https://www.kingdee.com"> 金蝶 </a>
+负责<a target="_blank" href="http://club.kingdee.com"> 金蝶社区 </a>java相关的日常开发和维护
 <p>
 
 
