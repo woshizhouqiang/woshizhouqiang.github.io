@@ -5,6 +5,7 @@
     <!--<audio autoplay="autoplay" controls="controls"loop="loop" preload="auto"-->
            <!--src="/告白气球.mp3"></audio>-->
     <!--<embed src="/告白气球.mp3" hidden="true" autostart="true" loop="true">-->
+    <audio id="audio" src="/告白气球.mp3" autoplay="autoplay">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>美丽可爱的小茹茹</title>
 
@@ -80,6 +81,12 @@
 </div>
 
 <script type="text/javascript">
+    $(function(){
+
+        $("#audio")[0].play();
+
+    })
+
     var offsetX = $("#loveHeart").width() / 2;
     var offsetY = $("#loveHeart").height() / 2 - 55;
     var together = new Date();
@@ -112,6 +119,6 @@
         $("#code").typewriter();
     }
 </script>
-<video src="/告白气球.mp3" autoplay="autoplay" loop="loop"></video>
+<!--<video src="/告白气球.mp3" autoplay="autoplay" loop="loop"></video>-->
 </body>
 </html>
