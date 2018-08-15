@@ -22,7 +22,7 @@
 </style>
 </head>
 <body>
-<audio controls="controls" autoplay="autopaly" loop="loop" preload="auto" src="/renxi.mp3">
+<audio id="audio" autoplay="autopaly" loop="loop" preload="auto" src="/renxi.mp3">
 </audio>
 <div id="main">
   <div id="error">本页面采用HTML5编辑，目前您的浏览器无法显示，请换成谷歌(<a href="http://www.kesjc.com">Chrome</a>)或者火狐(<a href="http://www.kesjc.com/">Firefox</a>)浏览器，或者其他游览器的最新版本。可视教程网收集分享</div>
@@ -50,8 +50,27 @@
     <canvas id="canvas" width="1100" height="680"></canvas>
   </div>
 </div>
-<script>
-    </script>
+<script  type="text/javascript">
+    //--创建页面监听，等待微信端页面加载完毕 触发音频播放
+    document.addEventListener('DOMContentLoaded', function () {
+        function audioAutoPlay() {
+            var audio = document.getElementById('audio');
+            audio.play();
+            document.addEventListener("WeixinJSBridgeReady", function () {
+                audio.play();
+            }, false);
+        }
+        audioAutoPlay();
+    });
+    //--创建触摸监听，当浏览器打开页面时，触摸屏幕触发事件，进行音频播放
+    function audioAutoPlay() {
+        var audio = document.getElementById('audio');
+        audio.play();
+        document.removeEventListener('touchstart',audioAutoPlay);
+    }
+    document.addEventListener('touchstart', audioAutoPlay);
+
+</script>
 <script>
     (function(){
         var canvas = $('#canvas');
