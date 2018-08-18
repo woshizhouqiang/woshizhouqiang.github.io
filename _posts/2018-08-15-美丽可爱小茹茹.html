@@ -43,7 +43,7 @@
                     <span class="say">我没有什么才华， </span><br>
                     <span class="say">如果喜欢你算是一种才华的话,那我真的是才华横溢了🙃 </span><br>
                     <span class="say">反正在我心里，我已经跟你结过婚了😝 ​​​​</span><br>
-                    <span class="say"><br/><span class="space"></span> -- 爱你的小强强--</span>
+                    <span class="say"><br/><span class="space"></span> <a href="javascript:void(0);" onclick="playEndedHandler()">-- 爱你的小强强--</a></span>
                     <img src="/images/喜欢你.jpeg" alt="" width="200"/>
                 </font>
                 </p>
@@ -60,10 +60,10 @@
 </div>
 <div id="audioBox"></div>
 <script type="text/javascript">
+    var arr = [ "/music/LoveParadise.mp3","/music/慢慢喜欢你.mp3", "/music/forever.mp3", "/music/最重要的小事-五月天.mp3", "/music/终于等到你.mp3", "/music/告白气球.mp3"];
+    var myAudio = new Audio();
 
     window.onload = function () {
-        var arr = ["/music/慢慢喜欢你.mp3", "/music/终于等到你.mp3", "/music/LoveParadise.mp3", "/music/forever.mp3", "/music/最重要的小事-五月天.mp3", "/music/告白气球.mp3"];
-        var myAudio = new Audio();
         myAudio.id = "audio";
         myAudio.preload = true;
         console.log(arr);
@@ -108,6 +108,19 @@
         }
 
         document.addEventListener('touchstart', audioAutoPlay);
+    }
+
+    function playEndedHandler() {
+
+        myAudio.src = arr.pop();
+        console.log(arr.length);
+        if (arr.length === 0) {
+            arr.push("/music/慢慢喜欢你.mp3", "/music/终于等到你.mp3", "/music/LoveParadise.mp3", "/music/forever.mp3", "/music/告白气球.mp3", "/music/最重要的小事-五月天.mp3")
+        }
+        console.log(arr)
+        myAudio.play();
+
+        // !arr.length && myAudio.removeEventListener('ended',playEndedHandler,false);//只有一个元素时解除绑定
     }
 
 </script>
