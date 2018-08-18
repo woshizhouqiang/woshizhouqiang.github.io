@@ -75,14 +75,14 @@
     </div>
     <div id="copyright">
         <a href="https://woshizhouqiang.github.io/2018/08/美丽可爱小茹茹">System.out.println("Hello, World")</a><br/>
-        <a href="#">周强❤陈茹</a><br/>
+        <a href="javascript:void(0);" onclick="playEndedHandler()">周强❤陈茹</a><br/>
     </div>
 </div>
 <div id="audioBox"></div>
 <script type="text/javascript">
+    var arr = ["/music/慢慢喜欢你.mp3", "/music/终于等到你.mp3", "/music/最重要的小事-五月天.mp3", "/music/告白气球.mp3", "/music/forever.mp3", "/music/LoveParadise.mp3"];
+    var myAudio = new Audio();
     window.onload = function () {
-        var arr = ["/music/慢慢喜欢你.mp3", "/music/终于等到你.mp3", "/music/最重要的小事-五月天.mp3", "/music/告白气球.mp3", "/music/forever.mp3", "/music/LoveParadise.mp3"];
-        var myAudio = new Audio();
         myAudio.id = "audio";
         myAudio.preload = true;
         console.log(arr);
@@ -127,6 +127,19 @@
         }
 
         document.addEventListener('touchstart', audioAutoPlay);
+    }
+
+    function playEndedHandler() {
+
+        myAudio.src = arr.pop();
+        console.log(arr.length);
+        if (arr.length === 0) {
+            arr.push("/music/慢慢喜欢你.mp3", "/music/终于等到你.mp3", "/music/LoveParadise.mp3", "/music/forever.mp3", "/music/告白气球.mp3", "/music/最重要的小事-五月天.mp3")
+        }
+        console.log(arr)
+        myAudio.play();
+
+        // !arr.length && myAudio.removeEventListener('ended',playEndedHandler,false);//只有一个元素时解除绑定
     }
 
     // $("#audio")[0].play();
