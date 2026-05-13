@@ -194,7 +194,10 @@
             
             // 计算旋转角度：多转几圈 + 目标角度
             const spins = 5 + Math.floor(Math.random() * 3); // 5-7圈
-            const targetAngle = 360 - prize.angle - 45; // 指针指向奖项中心
+            // 指针在顶部(0度)，要指向某个奖项，需要让该奖项转到顶部
+            // 奖项当前角度 + 旋转角度 = 360的倍数(顶部)
+            // 所以旋转角度 = 360 - 奖项角度
+            const targetAngle = 360 - prize.angle;
             const finalRotation = currentRotation + spins * 360 + targetAngle;
             
             const wheel = document.getElementById('wheel');
