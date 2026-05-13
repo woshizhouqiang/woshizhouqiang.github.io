@@ -204,13 +204,15 @@
             const prize = prizes[randomIndex];
             
             // 计算旋转角度
-            // 指针在顶部(0度)
+            // Canvas中0度在右边(3点钟)，顺时针增加
+            // 指针在顶部(12点钟)，对应270度
             // 每个扇形90度，中心点在 45, 135, 225, 315
-            // 要让第randomIndex个扇形中心转到顶部(0度)
-            // 需要旋转的角度 = 360 - 该中心角度
+            // 要让第randomIndex个扇形中心转到指针位置(270度)
+            // 需要旋转的角度 = 270 - 该中心角度
             const sectorAngle = 360 / prizes.length;
             const centerAngle = randomIndex * sectorAngle + sectorAngle / 2;
-            const targetAngle = 360 - centerAngle;
+            let targetAngle = 270 - centerAngle;
+            if (targetAngle < 0) targetAngle += 360;
             
             const spins = 5 + Math.floor(Math.random() * 3);
             const finalRotation = currentRotation + spins * 360 + targetAngle;
