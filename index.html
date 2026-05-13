@@ -141,11 +141,12 @@
         const centerY = canvas.height / 2;
         const radius = 160;
         
+        // 奖项按顺时针排列，从顶部开始
         const prizes = [
-            { name: '一等奖', amount: 520, color: '#ff6b6b' },
-            { name: '二等奖', amount: 131.4, color: '#4ecdc4' },
-            { name: '三等奖', amount: 52, color: '#45b7d1' },
-            { name: '幸运奖', amount: 13.14, color: '#f9ca24' }
+            { name: '一等奖', amount: 520, color: '#ff6b6b' },    // 顶部
+            { name: '二等奖', amount: 131.4, color: '#4ecdc4' },  // 右边
+            { name: '三等奖', amount: 52, color: '#45b7d1' },     // 底部
+            { name: '幸运奖', amount: 13.14, color: '#f9ca24' }   // 左边
         ];
         
         let total = 0;
@@ -153,17 +154,18 @@
         let currentRotation = 0;
         
         // 绘制转盘
-        function drawWheel(rotation = 0) {
+        function drawWheel() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.save();
             ctx.translate(centerX, centerY);
-            ctx.rotate(rotation * Math.PI / 180);
             
             const anglePerItem = (2 * Math.PI) / prizes.length;
             
             for (let i = 0; i < prizes.length; i++) {
-                const startAngle = i * anglePerItem;
-                const endAngle = (i + 1) * anglePerItem;
+                // 从顶部开始，顺时针绘制
+                // 顶部是 -90度 (或 270度)
+                const startAngle = i * anglePerItem - Math.PI / 2;
+                const endAngle = (i + 1) * anglePerItem - Math.PI / 2;
                 
                 // 绘制扇形
                 ctx.beginPath();
@@ -192,6 +194,24 @@
         // 初始化绘制
         drawWheel();
         
+        // 根据旋转角度计算指向哪个奖项
+        function getPrizeByRotation(rotation) {
+            // 标准化角度到 0-360
+            const normalizedRotation = ((rotation % 360) + 360) % 360;
+            
+            // 指针在顶部(0度位置，对应 prizes[0])
+            // 转盘顺时针旋转，所以奖项顺序是反的
+            // 旋转90度，顶部显示的是左边的奖项(prizes[3])
+            // 旋转180度，顶部显示的是底部的奖项(prizes[2])
+            // 旋转270度，顶部显示的是右边的奖项(prizes[1])
+            
+            const sectorAngle = 360 / prizes.length;
+            // 计算指针指向的奖项索引
+            const index = Math.floor(((360 - normalizedRotation) % 360) / sectorAngle);
+            
+            return prizes[index];
+        }
+        
         function spin() {
             if (isSpinning) return;
             isSpinning = true;
@@ -199,29 +219,18 @@
             document.getElementById('spinBtn').disabled = true;
             document.getElementById('result').textContent = '抽奖中...';
             
-            // 随机选择一个奖项
-            const randomIndex = Math.floor(Math.random() * prizes.length);
-            const prize = prizes[randomIndex];
-            
-            // 计算旋转角度
-            // Canvas中0度在右边(3点钟)，顺时针增加
-            // 指针在顶部(12点钟)，对应270度
-            // 每个扇形90度，中心点在 45, 135, 225, 315
-            // 要让第randomIndex个扇形中心转到指针位置(270度)
-            // 需要旋转的角度 = 270 - 该中心角度
-            const sectorAngle = 360 / prizes.length;
-            const centerAngle = randomIndex * sectorAngle + sectorAngle / 2;
-            let targetAngle = 270 - centerAngle;
-            if (targetAngle < 0) targetAngle += 360;
-            
+            // 随机旋转角度
             const spins = 5 + Math.floor(Math.random() * 3);
-            const finalRotation = currentRotation + spins * 360 + targetAngle;
+            const randomDegree = Math.floor(Math.random() * 360);
+            const finalRotation = currentRotation + spins * 360 + randomDegree;
             
             canvas.style.transform = `rotate(${finalRotation}deg)`;
             currentRotation = finalRotation;
             
-            // 4秒后显示结果
+            // 4秒后根据实际角度计算结果
             setTimeout(() => {
+                const prize = getPrizeByRotation(finalRotation);
+                
                 total += prize.amount;
                 document.getElementById('result').innerHTML = 
                     `🎉 ${prize.name}：<span style="font-size:32px;font-weight:bold;">¥${prize.amount}</span>`;
