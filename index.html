@@ -34,42 +34,11 @@
             height: 350px;
         }
         
-        .wheel {
+        #canvas {
             width: 100%;
             height: 100%;
-            border-radius: 50%;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
         }
-        
-        .wheel-item {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            transform-origin: right bottom;
-            left: 0;
-            top: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-        }
-        
-        .wheel-item span {
-            transform: rotate(45deg);
-            margin-left: 20px;
-            margin-top: -20px;
-        }
-        
-        .item-1 { background: #ff6b6b; transform: rotate(0deg); }
-        .item-2 { background: #4ecdc4; transform: rotate(90deg); }
-        .item-3 { background: #45b7d1; transform: rotate(180deg); }
-        .item-4 { background: #f9ca24; transform: rotate(270deg); }
         
         .pointer {
             position: absolute;
@@ -120,8 +89,9 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
         
-        .btn:active {
-            transform: translateY(0);
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         
         .result {
@@ -155,12 +125,7 @@
     
     <div class="wheel-container">
         <div class="pointer"></div>
-        <div class="wheel" id="wheel">
-            <div class="wheel-item item-1"><span>¥520</span></div>
-            <div class="wheel-item item-2"><span>¥131.4</span></div>
-            <div class="wheel-item item-3"><span>¥52</span></div>
-            <div class="wheel-item item-4"><span>¥13.14</span></div>
-        </div>
+        <canvas id="canvas" width="350" height="350"></canvas>
         <div class="center-circle">🎁</div>
     </div>
     
@@ -170,16 +135,62 @@
     <div class="total" id="total">累计：¥0</div>
 
     <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = 160;
+        
+        const prizes = [
+            { name: '一等奖', amount: 520, color: '#ff6b6b' },
+            { name: '二等奖', amount: 131.4, color: '#4ecdc4' },
+            { name: '三等奖', amount: 52, color: '#45b7d1' },
+            { name: '幸运奖', amount: 13.14, color: '#f9ca24' }
+        ];
+        
         let total = 0;
         let isSpinning = false;
         let currentRotation = 0;
         
-        const prizes = [
-            { name: '一等奖', amount: 520, angle: 0 },
-            { name: '二等奖', amount: 131.4, angle: 90 },
-            { name: '三等奖', amount: 52, angle: 180 },
-            { name: '幸运奖', amount: 13.14, angle: 270 }
-        ];
+        // 绘制转盘
+        function drawWheel(rotation = 0) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(rotation * Math.PI / 180);
+            
+            const anglePerItem = (2 * Math.PI) / prizes.length;
+            
+            for (let i = 0; i < prizes.length; i++) {
+                const startAngle = i * anglePerItem;
+                const endAngle = (i + 1) * anglePerItem;
+                
+                // 绘制扇形
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = prizes[i].color;
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                // 绘制文字
+                ctx.save();
+                ctx.rotate(startAngle + anglePerItem / 2);
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 20px Microsoft YaHei';
+                ctx.fillText(`¥${prizes[i].amount}`, radius * 0.65, 5);
+                ctx.restore();
+            }
+            
+            ctx.restore();
+        }
+        
+        // 初始化绘制
+        drawWheel();
         
         function spin() {
             if (isSpinning) return;
@@ -192,16 +203,17 @@
             const randomIndex = Math.floor(Math.random() * prizes.length);
             const prize = prizes[randomIndex];
             
-            // 计算旋转角度：多转几圈 + 目标角度
-            const spins = 5 + Math.floor(Math.random() * 3); // 5-7圈
-            // 指针在顶部(0度)，要指向某个奖项，需要让该奖项转到顶部
-            // 奖项当前角度 + 旋转角度 = 360的倍数(顶部)
-            // 所以旋转角度 = 360 - 奖项角度
-            const targetAngle = 360 - prize.angle;
+            // 计算旋转角度
+            // 指针在顶部(0度，即-90度在canvas坐标系中)
+            // 每个扇形90度，要让第randomIndex个扇形转到顶部
+            // 需要旋转的角度 = 360 - (randomIndex * 90 + 45) + 90
+            const sectorAngle = 360 / prizes.length;
+            const targetAngle = 360 - (randomIndex * sectorAngle + sectorAngle / 2) + 90;
+            
+            const spins = 5 + Math.floor(Math.random() * 3);
             const finalRotation = currentRotation + spins * 360 + targetAngle;
             
-            const wheel = document.getElementById('wheel');
-            wheel.style.transform = `rotate(${finalRotation}deg)`;
+            canvas.style.transform = `rotate(${finalRotation}deg)`;
             currentRotation = finalRotation;
             
             // 4秒后显示结果
