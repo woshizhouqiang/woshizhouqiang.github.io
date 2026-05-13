@@ -1,250 +1,39 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>老婆专属转盘</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #ff6b6b, #feca57, #ff9ff3);
-            font-family: 'Microsoft YaHei', sans-serif;
-        }
-        
-        h1 {
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
-            font-size: 28px;
-        }
-        
-        .wheel-container {
-            position: relative;
-            width: 350px;
-            height: 350px;
-        }
-        
-        #canvas {
-            width: 100%;
-            height: 100%;
-            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
-        }
-        
-        .pointer {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 50px;
-            background: #e74c3c;
-            clip-path: polygon(50% 100%, 0 0, 100% 0);
-            z-index: 10;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-        }
-        
-        .center-circle {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            z-index: 10;
-        }
-        
-        .btn {
-            margin-top: 30px;
-            padding: 15px 50px;
-            font-size: 20px;
-            border: none;
-            border-radius: 50px;
-            background: white;
-            color: #ff6b6b;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            transition: all 0.3s;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        }
-        
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .result {
-            margin-top: 20px;
-            font-size: 24px;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            min-height: 40px;
-            text-align: center;
-        }
-        
-        .total {
-            margin-top: 10px;
-            font-size: 16px;
-            color: white;
-            opacity: 0.9;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .win {
-            animation: pulse 0.5s ease-in-out 3;
-        }
-    </style>
-</head>
-<body>
-    <h1>🧧 老婆专属转盘</h1>
-    
-    <div class="wheel-container">
-        <div class="pointer"></div>
-        <canvas id="canvas" width="350" height="350"></canvas>
-        <div class="center-circle">🎁</div>
-    </div>
-    
-    <button class="btn" id="spinBtn" onclick="spin()">开始抽奖</button>
-    
-    <div class="result" id="result"></div>
-    <div class="total" id="total">累计：¥0</div>
+---
+layout: default
+---
 
-    <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = 160;
-        
-        // 奖项按顺时针排列，从顶部开始
-        const prizes = [
-            { name: '一等奖', amount: 520, color: '#ff6b6b' },    // 顶部
-            { name: '二等奖', amount: 131.4, color: '#4ecdc4' },  // 右边
-            { name: '三等奖', amount: 52, color: '#45b7d1' },     // 底部
-            { name: '幸运奖', amount: 13.14, color: '#f9ca24' }   // 左边
-        ];
-        
-        let total = 0;
-        let isSpinning = false;
-        let currentRotation = 0;
-        
-        // 绘制转盘
-        function drawWheel() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.save();
-            ctx.translate(centerX, centerY);
-            
-            const anglePerItem = (2 * Math.PI) / prizes.length;
-            
-            for (let i = 0; i < prizes.length; i++) {
-                // 从顶部开始，顺时针绘制
-                // 顶部是 -90度 (或 270度)
-                const startAngle = i * anglePerItem - Math.PI / 2;
-                const endAngle = (i + 1) * anglePerItem - Math.PI / 2;
-                
-                // 绘制扇形
-                ctx.beginPath();
-                ctx.moveTo(0, 0);
-                ctx.arc(0, 0, radius, startAngle, endAngle);
-                ctx.closePath();
-                ctx.fillStyle = prizes[i].color;
-                ctx.fill();
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 3;
-                ctx.stroke();
-                
-                // 绘制文字
-                ctx.save();
-                ctx.rotate(startAngle + anglePerItem / 2);
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 20px Microsoft YaHei';
-                ctx.fillText(`¥${prizes[i].amount}`, radius * 0.65, 5);
-                ctx.restore();
-            }
-            
-            ctx.restore();
-        }
-        
-        // 初始化绘制
-        drawWheel();
-        
-        // 根据旋转角度计算指向哪个奖项
-        function getPrizeByRotation(rotation) {
-            // 标准化角度到 0-360
-            const normalizedRotation = ((rotation % 360) + 360) % 360;
-            
-            // 指针在顶部(0度位置，对应 prizes[0])
-            // 转盘顺时针旋转，所以奖项顺序是反的
-            // 旋转90度，顶部显示的是左边的奖项(prizes[3])
-            // 旋转180度，顶部显示的是底部的奖项(prizes[2])
-            // 旋转270度，顶部显示的是右边的奖项(prizes[1])
-            
-            const sectorAngle = 360 / prizes.length;
-            // 计算指针指向的奖项索引
-            const index = Math.floor(((360 - normalizedRotation) % 360) / sectorAngle);
-            
-            return prizes[index];
-        }
-        
-        function spin() {
-            if (isSpinning) return;
-            isSpinning = true;
-            
-            document.getElementById('spinBtn').disabled = true;
-            document.getElementById('result').textContent = '抽奖中...';
-            
-            // 随机旋转角度
-            const spins = 5 + Math.floor(Math.random() * 3);
-            const randomDegree = Math.floor(Math.random() * 360);
-            const finalRotation = currentRotation + spins * 360 + randomDegree;
-            
-            canvas.style.transform = `rotate(${finalRotation}deg)`;
-            currentRotation = finalRotation;
-            
-            // 4秒后根据实际角度计算结果
-            setTimeout(() => {
-                const prize = getPrizeByRotation(finalRotation);
-                
-                total += prize.amount;
-                document.getElementById('result').innerHTML = 
-                    `🎉 ${prize.name}：<span style="font-size:32px;font-weight:bold;">¥${prize.amount}</span>`;
-                document.getElementById('total').textContent = `累计：¥${total.toFixed(2)}`;
-                document.getElementById('result').classList.add('win');
-                
-                setTimeout(() => {
-                    document.getElementById('result').classList.remove('win');
-                }, 1500);
-                
-                document.getElementById('spinBtn').disabled = false;
-                isSpinning = false;
-            }, 4000);
-        }
-    </script>
-</body>
-</html>
+<div class="main-post-list hidden">
+
+  <ol class="post-list">
+    {% for post in paginator.posts %}
+    <li>
+      <h2 class="post-list__post-title post-title"><a href="{{ post.url }}" title="访问 {{ post.title }}">{{ post.title }}</a></h2>
+      <p class="excerpt">{{ post.content | strip_html | strip_newlines | truncate: 250 }}&hellip;</p>
+      <div class="post-list__meta">        
+        <time datetime="{{post.date | date: date_to_xmlschema}}" class="post-list__meta--date date">
+          <span class="post-meta-item-icon">
+        <i class="fa fa-calendar-o">
+          <!-- ::before   -->
+        </i>
+      </span>
+          {{ post.date | date: "%F"}}</time> 
+        <div class = "tag-img-icon">
+          <img src="/images/tag-icon.svg" width="20px" /> 
+          <!-- <i class="fa fa-folder"></i> -->
+        </div>
+        <a href="/tags">
+          <div class = "post-list-icon-mate">
+            <span class="post-list__meta--tags-right">{{ post.tags }}</span>
+          </div>
+          <div class = "post-list-small-mate">
+          <a class="btn-border-small" href={{ post.url }}>阅读全文 » </a>
+          </div>
+      </div>
+      <hr class="post-list__divider" />
+    </li>
+    {% endfor %}
+  </ol>
+
+  {% include pagination.html %}
+
+</div>
