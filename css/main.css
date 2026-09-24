@@ -807,12 +807,13 @@ img::-moz-selection {
     margin: 0;
     padding: 0;
     list-style-type: none;
-    text-align: left; 
-    display: inline-block;
+    text-align: left;
+    display: block;
   }
   .post-list li {
     margin: 0 0 2.2em 0;
-    float: left;
+    width: 100%;
+    box-sizing: border-box;
 
     -moz-box-shadow:4px 4px 4px #efefef, 
     -4px -4px 4px #efefef, 
